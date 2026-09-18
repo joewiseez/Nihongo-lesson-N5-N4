@@ -1,0 +1,114 @@
+import React, { useRef, useState, useEffect } from 'react';
+import { RotateCcw, X, Volume2 } from 'lucide-react';
+import { playJapaneseAudio } from '../utils/tts';
+
+interface Props {
+  char: string;
+  romaji: string;
+  onClose: () => void;
+}
+
+export const KanaDrawingModal: React.FC<Props> = ({ char, romaji, onClose }) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+
+  useEffect(() => {
+    clearCanvas();
+  }, [char]);
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
+    setIsDrawing(true);
+    draw(e);
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx?.beginPath();
+  };
+
+  const draw = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    ctx.lineWidth = 10;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#BC002D';
+
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+          <X className="w-6 h-6" />
+        </button>
+
+        <div className="text-center mb-4">
+          <h3 className="text-xl font-bold text-gray-900">Latihan Menulis Huruf</h3>
+          <p className="text-sm text-gray-500">Goreskan jari / mouse Anda mengikuti panduan</p>
+        </div>
+
+        {/* Kotak Canvas dengan watermark karakter */}
+        <div className="relative w-64 h-64 mx-auto border-2 border-dashed border-red-200 rounded-xl bg-red-50/30 flex items-center justify-center overflow-hidden">
+          <span className="absolute text-8xl font-black text-red-200/50 select-none pointer-events-none">
+            {char}
+          </span>
+          <canvas
+            ref={canvasRef}
+            width={256}
+            height={256}
+            className="absolute inset-0 cursor-crosshair touch-none"
+            onMouseDown={startDrawing}
+            onMouseUp={stopDrawing}
+            onMouseMove={draw}
+            onTouchStart={startDrawing}
+            onTouchEnd={stopDrawing}
+            onTouchMove={draw}
+          />
+        </div>
+
+        <div className="mt-4 flex items-center justify-between">
+          <button
+            onClick={() => playJapaneseAudio(char)}
+            className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition"
+          >
+            <Volume2 className="w-4 h-4" />
+            <span>{romaji}</span>
+          </button>
+          <button
+            onClick={clearCanvas}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-gray-700"
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span>Hapus Goresan</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
