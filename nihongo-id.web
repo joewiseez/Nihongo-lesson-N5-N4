@@ -1,0 +1,26 @@
+nihongo-id-web/
+├── package.json
+├── vite.config.ts
+├── tsconfig.json
+├── tailwind.config.js
+├── postcss.config.js
+├── index.html
+├── vercel.json (atau netlify.toml)
+└── src/
+    ├── main.tsx
+    ├── App.tsx
+    ├── types.ts
+    ├── data/
+    │   └── japaneseData.ts        // 100+ kosakata, kanji, tata bahasa, choukai
+    ├── utils/
+    │   └── tts.ts                 // Web Speech Synthesis (suara Jepang & speed switch)
+    ├── components/
+    │   ├── Navbar.tsx
+    │   ├── AudioButton.tsx
+    │   └── KanaDrawingModal.tsx   // Kanvas coretan menulis Hiragana/Katakana
+    └── views/
+        ├── HomeView.tsx
+        ├── LearnView.tsx
+        ├── SrsReviewView.tsx
+        ├── PracticeView.tsx
+        └── ProgressView.tsx
